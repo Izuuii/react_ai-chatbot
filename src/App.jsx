@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Assistant } from "./assistants/googleai"; // Only using Google AI
+import { Assistant } from "./assistants/openai"; // Only using Google AI
 import { Chat } from "./components/Chat/Chat";
 import { Controls } from "./components/Controls/Controls";
 import { Loader } from "./components/Loader/Loader";
@@ -48,7 +48,7 @@ function updateLastMessageContent(content) {
     addMessage({ content, role: "user" }); // Add user message
     setIsLoading(true); // Show loader
     try {
-      const result = await assistant.chatStream(content); // Get assistant response
+      const result = await assistant.chatStream(content, messages); // Get assistant response
       let isFirstChunk = false
       
       for await (const chunk of result){
