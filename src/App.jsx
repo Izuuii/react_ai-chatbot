@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Assistant } from "./assistants/openai"; // Only using Google AI
+import { Assistant } from "./assistants/deepseekai"; // Only using Google AI
 import { Chat } from "./components/Chat/Chat";
 import { Controls } from "./components/Controls/Controls";
 import { Loader } from "./components/Loader/Loader";
@@ -68,13 +68,16 @@ function updateLastMessageContent(content) {
       if (error.status === 429) {
         errorMsg = "You have exceeded your OpenAI quota or rate limit. Please check your OpenAI account billing and usage.";
       }
+      if (error.status === 402) {
+        errorMsg = "Insufficient balance on your DeepSeek account. Please check your API credits or billing.";
+      }
       addMessage({
         content: errorMsg,
         role: "system",
       });
       setIsLoading(false)
       setIstreaming(false)
-    } 
+    }
   }
 // ...ex
 
