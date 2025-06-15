@@ -8,11 +8,14 @@ import { Switch } from "@headlessui/react"; // Import headless UI switch
 function App() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIstreaming] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("darkMode") === "true";
   });
+  
 
-  const assistant = new Assistant(); // Using only Google AI
+  const assistant = new Assistant();
+
 
   useEffect(() => {
     const html = document.documentElement;
@@ -24,29 +27,59 @@ function App() {
     localStorage.setItem("darkMode", isDarkMode);
   }, [isDarkMode]);
 
+
+function updateLastMessageContent(content) {
+  setMessages((prevMessages) =>
+    prevMessages.map((message, index) =>
+      index === prevMessages.length - 1
+        ? { ...message, content: message.content + content }
+        : message
+    )
+  );
+}
+
+  // Add a new message to the chat history
   function addMessage(message) {
     setMessages((prevMessages) => [...prevMessages, message]);
   }
 
+  // Handle sending user content to the assistant and updating chat
   async function handleContentSend(content) {
-    addMessage({ content, role: "user" });
-    setIsLoading(true);
+    addMessage({ content, role: "user" }); // Add user message
+    setIsLoading(true); // Show loader
     try {
-      const result = await assistant.chat(content, messages);
-      addMessage({ content: result, role: "assistant" });
+      const result = await assistant.chatStream(content); // Get assistant response
+      let isFirstChunk = false
+      
+      for await (const chunk of result){
+        if (!isFirstChunk){
+          isFirstChunk = true
+          addMessage({ content: "", role: "assistant" })
+          setIsLoading(false)
+          setIstreaming(true)
+        }
+        updateLastMessageContent(chunk)
+      }
+      setIstreaming(false)
+      
     } catch (error) {
       console.error("Error during chat:", error);
+      let errorMsg = "Sorry, I couldn't process your request. Please try again!";
+      if (error.status === 429) {
+        errorMsg = "You have exceeded your OpenAI quota or rate limit. Please check your OpenAI account billing and usage.";
+      }
       addMessage({
-        content: "Sorry, I couldn't process your request. Please try again!",
+        content: errorMsg,
         role: "system",
       });
-    } finally {
-      setIsLoading(false);
-    }
+      setIsLoading(false)
+      setIstreaming(false)
+    } 
   }
+// ...ex
 
   return (
-    <div className="flex flex-col h-screen items-center gap-4 px-5 bg-green-300 pb-3 dark:bg-gray-900 dark:text-white">
+    <div className="flex flex-col h-screen items-center gap-4 px-20 bg-green-300 pb-3 dark:bg-gray-900 dark:text-white">
       {/* Show Loader when loading */}
       {isLoading && <Loader />}
 
@@ -79,7 +112,7 @@ function App() {
 
       {/* Input Controls */}
       <div className="w-full">
-        <Controls isDisabled={isLoading} onSend={handleContentSend} />
+        <Controls isDisabled={isLoading || isStreaming} onSend={handleContentSend} />
       </div>
     </div>
   );

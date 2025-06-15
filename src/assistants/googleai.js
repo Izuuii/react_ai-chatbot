@@ -14,4 +14,16 @@ export class Assistant {
     const result = await this.#chat.sendMessage(content);
     return result.response.text();
   }
+
+  async *chatStream(content){
+    try {
+      const result = await this.#chat.sendMessageStream(content)
+
+      for await (const chunk of result.stream){
+        yield chunk.text()
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }

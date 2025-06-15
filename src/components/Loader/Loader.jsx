@@ -1,3 +1,4 @@
+// Loader component displays a loading animation overlay
 export function Loader() {
     return (
         <div className="flex justify-center items-center fixed top-0 left-0 w-screen h-screen bg-gray-300 dark:bg-gray-900 opacity-60 z-50">

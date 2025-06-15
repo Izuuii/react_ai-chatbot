@@ -6,19 +6,23 @@ export function Controls({ isDisabled = false, onSend }) {
     const textarea = useRef(null);
     const [content, setContent] = useState("");
 
+    // Focus the textarea when not disabled
     useEffect(() => {
         if (!isDisabled) textarea.current.focus();
     }, [isDisabled]);
 
+    // Update content state as user types
     function handleContentChange(event) {
         setContent(event.target.value);
     }
 
+    // Send the message and clear the input
     function handleContentSend() {
         if (content.length > 0) onSend(content);
         setContent("");
     }
 
+    // Handle Enter key to send message (Shift+Enter for newline)
     function handleEnterPress(event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -62,6 +66,7 @@ Controls.propTypes = {
     onSend: PropTypes.func.isRequired,
 };
 
+// SVG icon for the send button
 function SendIcon() {
     return (
         <svg

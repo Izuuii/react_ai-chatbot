@@ -11,6 +11,7 @@ const WELCOME_MESSAGE_GROUP = [[{
 export function Chat({ messages }) {
   const messagesEndRef = useRef(null);
 
+  // Group messages by user/assistant turns for display
   const messageGroups = useMemo(() => 
     messages.reduce((groups, message) => {
       if (message.role === "user") groups.push([]);
@@ -20,16 +21,18 @@ export function Chat({ messages }) {
     }, [])
   , [messages]);
 
+  // Scroll to the bottom when messages change
   useEffect(() => {
-    if (messagesEndRef.current) {
-      setTimeout(() => {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'user')
+    {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   return (
     <div className="Chat flex flex-col gap-1.5 h-full p-3 overflow-y-auto">
+      {/* Render welcome message and all message groups */}
       {[...WELCOME_MESSAGE_GROUP, ...messageGroups].map((messages, groupIndex, array) => (
         <div
           key={groupIndex}
@@ -47,6 +50,7 @@ export function Chat({ messages }) {
                 }`}
               data-role={role}
             >
+            {/* Render message content as Markdown */}
             <Markdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -71,6 +75,7 @@ export function Chat({ messages }) {
           ))}
         </div>
       ))}
+      {/* Dummy div for scroll-to-bottom */}
       <div ref={messagesEndRef} className="invisible" />
     </div>
   );
