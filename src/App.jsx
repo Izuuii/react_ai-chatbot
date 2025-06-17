@@ -82,7 +82,7 @@ function updateLastMessageContent(content) {
 // ...ex
 
   return (
-    <div className="flex flex-col h-screen items-center gap-4 px-20 bg-green-300 pb-3 dark:bg-gray-900 dark:text-white">
+    <div className="flex flex-col min-h-screen items-center gap-4 px-2 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 bg-green-300 dark:bg-gray-900 dark:text-white">
       {/* Show Loader when loading */}
       {isLoading && <Loader />}
 
