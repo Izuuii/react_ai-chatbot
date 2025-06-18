@@ -1,21 +1,27 @@
-import { useState, useEffect } from "react";
-import { Assistant } from "./assistants/googleai"; // Only using Google AI
+import { useState, useEffect, useRef } from "react";
+import { Assistant as GoogleAssistant } from "./assistants/googleai";
+import { Assistant as OpenAIAssistant } from "./assistants/openai";
+import { Assistant as DeepSeekAssistant } from "./assistants/deepseekai";
 import { Chat } from "./components/Chat/Chat";
 import { Controls } from "./components/Controls/Controls";
 import { Loader } from "./components/Loader/Loader";
-import { Switch } from "@headlessui/react"; // Import headless UI switch
+import { Switch } from "@headlessui/react";
+
+const ASSISTANTS = [
+  { key: "google", name: "Gemini", instance: GoogleAssistant },
+  { key: "openai", name: "OpenAI", instance: OpenAIAssistant },
+  { key: "deepseek", name: "DeepSeek", instance: DeepSeekAssistant },
+];
 
 function App() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIstreaming] = useState(false)
+  const [isStreaming, setIstreaming] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("darkMode") === "true";
   });
-  
-
-  const assistant = new Assistant();
-
+  const [selectedAssistant, setSelectedAssistant] = useState(ASSISTANTS[0].key);
+  const assistantRef = useRef(new ASSISTANTS[0].instance());
 
   useEffect(() => {
     const html = document.documentElement;
@@ -27,41 +33,43 @@ function App() {
     localStorage.setItem("darkMode", isDarkMode);
   }, [isDarkMode]);
 
+useEffect(() => {
+  // Reset assistant instance when selection changes
+  const assistantObj = ASSISTANTS.find(a => a.key === selectedAssistant);
+  assistantRef.current = new assistantObj.instance();
+  setMessages([]); // Optionally clear chat when switching assistants
+}, [selectedAssistant]);
 
-function updateLastMessageContent(content) {
-  setMessages((prevMessages) =>
-    prevMessages.map((message, index) =>
-      index === prevMessages.length - 1
-        ? { ...message, content: message.content + content }
-        : message
-    )
-  );
-}
+  function updateLastMessageContent(content) {
+    setMessages((prevMessages) =>
+      prevMessages.map((message, index) =>
+        index === prevMessages.length - 1
+          ? { ...message, content: message.content + content }
+          : message
+      )
+    );
+  }
 
-  // Add a new message to the chat history
   function addMessage(message) {
     setMessages((prevMessages) => [...prevMessages, message]);
   }
 
-  // Handle sending user content to the assistant and updating chat
   async function handleContentSend(content) {
-    addMessage({ content, role: "user" }); // Add user message
-    setIsLoading(true); // Show loader
+    addMessage({ content, role: "user" });
+    setIsLoading(true);
     try {
-      const result = await assistant.chatStream(content, messages); // Get assistant response
-      let isFirstChunk = false
-      
-      for await (const chunk of result){
-        if (!isFirstChunk){
-          isFirstChunk = true
-          addMessage({ content: "", role: "assistant" })
-          setIsLoading(false)
-          setIstreaming(true)
+      const result = await assistantRef.current.chatStream(content, messages);
+      let isFirstChunk = false;
+      for await (const chunk of result) {
+        if (!isFirstChunk) {
+          isFirstChunk = true;
+          addMessage({ content: "", role: "assistant" });
+          setIsLoading(false);
+          setIstreaming(true);
         }
-        updateLastMessageContent(chunk)
+        updateLastMessageContent(chunk);
       }
-      setIstreaming(false)
-      
+      setIstreaming(false);
     } catch (error) {
       console.error("Error during chat:", error);
       let errorMsg = "Sorry, I couldn't process your request. Please try again!";
@@ -75,11 +83,10 @@ function updateLastMessageContent(content) {
         content: errorMsg,
         role: "system",
       });
-      setIsLoading(false)
-      setIstreaming(false)
+      setIsLoading(false);
+      setIstreaming(false);
     }
   }
-// ...ex
 
   return (
     <div className="flex flex-col min-h-screen items-center gap-4 px-2 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 bg-green-300 dark:bg-gray-900 dark:text-white">
@@ -92,7 +99,18 @@ function updateLastMessageContent(content) {
           <img className="w-16 h-16" src="/chat-bot.png" alt="Chatbot Logo" />
           <h2 className="m-0 text-xl font-semibold">AI Chatbot</h2>
         </div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row gap-4 items-center">
+          {/* Assistant Selection */}
+          <select
+            className="rounded-lg px-3 py-2 bg-green-200 dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600"
+            value={selectedAssistant}
+            onChange={e => setSelectedAssistant(e.target.value)}
+            disabled={isLoading || isStreaming}
+          >
+            {ASSISTANTS.map(a => (
+              <option key={a.key} value={a.key}>{a.name}</option>
+            ))}
+          </select>
           {/* Dark Mode Toggle */}
           <Switch
             checked={isDarkMode}
