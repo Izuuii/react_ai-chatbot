@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Assistant } from "./assistants/deepseekai"; // Only using Google AI
+import { Assistant } from "./assistants/googleai"; // Only using Google AI
 import { Chat } from "./components/Chat/Chat";
 import { Controls } from "./components/Controls/Controls";
 import { Loader } from "./components/Loader/Loader";
