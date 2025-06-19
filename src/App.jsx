@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Assistant as GoogleAssistant } from "./assistants/googleai";
 import { Assistant as OpenAIAssistant } from "./assistants/openai";
-import { Assistant as DeepSeekAssistant } from "./assistants/googleai";
+import { Assistant as DeepSeekAssistant } from "./assistants/deepseekai";
 import { Chat } from "./components/Chat/Chat";
 import { Controls } from "./components/Controls/Controls";
 import { Loader } from "./components/Loader/Loader";
@@ -82,12 +82,10 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-white">
+    <div className="flex flex-col h-screen bg-white dark:bg-gray-900 dark:text-white">
       {isLoading && <Loader />}
 
-      {/* Inner padded wrapper (x-axis padding) */}
-      <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 flex flex-col gap-4 flex-grow">
-
+      <div className="flex flex-col flex-1 min-h-0 w-full max-w-screen-xl mx-auto px-4 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 gap-4">
         {/* Header */}
         <header className="flex flex-row items-center text-center py-3 w-full justify-between">
           <div className="flex flex-row gap-2 items-center">
@@ -106,7 +104,6 @@ function App() {
                 <option key={a.key} value={a.key}>{a.name}</option>
               ))}
             </select>
-
             {/* Dark Mode Switch */}
             <Switch
               checked={isDarkMode}
@@ -122,9 +119,11 @@ function App() {
           </div>
         </header>
 
-        {/* Chat Area */}
-        <div className="ChatContainer flex-grow w-full bg-white overflow-y-auto p-3 dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-700 transition-colors duration-300">
-          <Chat messages={messages} />
+        {/* Chat Area (fills available space, scrollable) */}
+        <div className="flex-1 min-h-0 w-full flex flex-col">
+          <div className="ChatContainer flex-1 min-h-0 bg-white overflow-y-auto p-3 dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-700 transition-colors duration-300">
+            <Chat messages={messages} />
+          </div>
         </div>
 
         {/* Input Controls */}
