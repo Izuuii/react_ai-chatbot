@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm'; // Optional for better markdown support
+import remarkGfm from 'remark-gfm';
 
 const WELCOME_MESSAGE_GROUP = [[{
   role: "assistant",
@@ -11,8 +11,7 @@ const WELCOME_MESSAGE_GROUP = [[{
 export function Chat({ messages }) {
   const messagesEndRef = useRef(null);
 
-  // Group messages by user/assistant turns for display
-  const messageGroups = useMemo(() => 
+  const messageGroups = useMemo(() =>
     messages.reduce((groups, message) => {
       if (message.role === "user") groups.push([]);
       if (groups.length === 0) groups.push([]);
@@ -21,61 +20,51 @@ export function Chat({ messages }) {
     }, [])
   , [messages]);
 
-  // Scroll to the bottom when messages change
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === 'user')
-    {
+    if (lastMessage?.role === 'user') {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   return (
-    <div className="Chat flex flex-col gap-1.5 h-full p-3 overflow-y-auto">
-      {/* Render welcome message and all message groups */}
+    <div className="Chat flex flex-col gap-1.5 h-full p-3 overflow-y-auto scroll-smooth scroll-pb-32">
       {[...WELCOME_MESSAGE_GROUP, ...messageGroups].map((messages, groupIndex, array) => (
-        <div
-          key={groupIndex}
-          className={`Group flex flex-col gap-1.5 ${
-            groupIndex === array.length - 1 ? "min-h-[calc(10%-8px)]" : ""
-          }`}
-        >
+        <div key={groupIndex} className={`Group flex flex-col gap-1.5 ${groupIndex === array.length - 1 ? "min-h-[calc(10%-8px)]" : ""}`}>
           {messages.map(({ role, content }, index) => (
             <div
               key={index}
               className={`Messages max-w-[75%] px-4 py-2 rounded-lg text-md break-words whitespace-pre-wrap
                 ${role === "user"
-                  ? "bg-green-300 text-gray-900 dark:bg-gray-950 dark:text-white self-end"
-                  : "bg-green-200 text-gray-900 dark:bg-gray-900 dark:text-gray-200 self-start"
+                  ? "bg-blue-100 text-gray-800 dark:bg-gray-950 dark:text-white self-end"
+                  : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 self-start"
                 }`}
               data-role={role}
             >
-            {/* Render message content as Markdown */}
-            <Markdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                pre: (props) => (
-                  <div className="overflow-x-auto bg-gray-900 text-white p-3 rounded-lg dark:bg-green-700 dark:text-[#333333]">
-                    <pre className="whitespace-pre-wrap" {...props} />
-                  </div>
-                ),
-                code: ({ inline, ...props }) =>
-                  inline ? (
-                    <code className="bg-gray-200 text-gray-900 px-1 rounded dark:bg-gray-600 dark:text-black" {...props} />
-                  ) : (
-                    <pre className="overflow-x-auto bg-gray-900 text-white p-3 rounded-lg dark:bg-green-700 dark:text-black">
-                      <code className="whitespace-pre" {...props} />
-                    </pre>
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  pre: (props) => (
+                    <div className="overflow-x-auto bg-gray-100 text-gray-800 p-3 rounded-lg dark:bg-green-700 dark:text-[#333333]">
+                      <pre className="whitespace-pre-wrap" {...props} />
+                    </div>
                   ),
-              }}
-            >
-              {content}
-            </Markdown>
+                  code: ({ inline, ...props }) =>
+                    inline ? (
+                      <code className="bg-gray-200 text-gray-800 px-1 rounded dark:bg-gray-600 dark:text-black" {...props} />
+                    ) : (
+                      <pre className="overflow-x-auto bg-gray-100 text-gray-800 p-3 rounded-lg dark:bg-green-700 dark:text-black">
+                        <code className="whitespace-pre" {...props} />
+                      </pre>
+                    ),
+                }}
+              >
+                {content}
+              </Markdown>
             </div>
           ))}
         </div>
       ))}
-      {/* Dummy div for scroll-to-bottom */}
       <div ref={messagesEndRef} className="invisible" />
     </div>
   );

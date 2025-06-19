@@ -25,20 +25,16 @@ function App() {
 
   useEffect(() => {
     const html = document.documentElement;
-    if (isDarkMode) {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
+    if (isDarkMode) html.classList.add("dark");
+    else html.classList.remove("dark");
     localStorage.setItem("darkMode", isDarkMode);
   }, [isDarkMode]);
 
-useEffect(() => {
-  // Reset assistant instance when selection changes
-  const assistantObj = ASSISTANTS.find(a => a.key === selectedAssistant);
-  assistantRef.current = new assistantObj.instance();
-  setMessages([]); // Optionally clear chat when switching assistants
-}, [selectedAssistant]);
+  useEffect(() => {
+    const assistantObj = ASSISTANTS.find(a => a.key === selectedAssistant);
+    assistantRef.current = new assistantObj.instance();
+    setMessages([]);
+  }, [selectedAssistant]);
 
   function updateLastMessageContent(content) {
     setMessages((prevMessages) =>
@@ -79,30 +75,23 @@ useEffect(() => {
       if (error.status === 402) {
         errorMsg = "Insufficient balance on your DeepSeek account. Please check your API credits or billing.";
       }
-      addMessage({
-        content: errorMsg,
-        role: "system",
-      });
+      addMessage({ content: errorMsg, role: "system" });
       setIsLoading(false);
       setIstreaming(false);
     }
   }
 
   return (
-    <div className="flex flex-col min-h-screen items-center gap-4 px-2 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 bg-green-300 dark:bg-gray-900 dark:text-white">
-      {/* Show Loader when loading */}
+    <div className="flex flex-col min-h-screen items-center gap-4 px-2 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 bg-gray-50 dark:bg-gray-900 dark:text-white">
       {isLoading && <Loader />}
-
-      {/* Header */}
       <header className="flex flex-row items-center text-center py-3 w-full justify-between">
         <div className="flex flex-row gap-2 items-center">
           <img className="w-16 h-16" src="/chat-bot.png" alt="Chatbot Logo" />
           <h2 className="m-0 text-xl font-semibold">AI Chatbot</h2>
         </div>
         <div className="flex flex-row gap-4 items-center">
-          {/* Assistant Selection */}
           <select
-            className="rounded-lg px-3 py-2 bg-green-200 dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600"
+            className="rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600"
             value={selectedAssistant}
             onChange={e => setSelectedAssistant(e.target.value)}
             disabled={isLoading || isStreaming}
@@ -111,27 +100,24 @@ useEffect(() => {
               <option key={a.key} value={a.key}>{a.name}</option>
             ))}
           </select>
-          {/* Dark Mode Toggle */}
           <Switch
             checked={isDarkMode}
             onChange={setIsDarkMode}
             className={`relative inline-flex h-[27px] w-[45px] items-center rounded-full transition duration-300 
-              ${isDarkMode ? "bg-gray-700" : "bg-green-100"}`}
+              ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
           >
             <span
               className={`inline-block h-[22px] w-[22px] transform rounded-full transition
-                ${isDarkMode ? "translate-x-5 bg-white" : "translate-x-1 bg-green-300"}`}
+                ${isDarkMode ? "translate-x-5 bg-white" : "translate-x-1 bg-white"}`}
             />
           </Switch>
         </div>
       </header>
 
-      {/* Chat Container */}
-      <div className="ChatContainer flex-grow w-full bg-green-100 rounded-2xl overflow-y-auto p-3 dark:bg-gray-800">
+      <div className="ChatContainer flex-grow w-full bg-white overflow-y-auto p-3 dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-700 transition-colors duration-300">
         <Chat messages={messages} />
       </div>
 
-      {/* Input Controls */}
       <div className="w-full">
         <Controls isDisabled={isLoading || isStreaming} onSend={handleContentSend} />
       </div>
