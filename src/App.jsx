@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Assistant as GoogleAssistant } from "./assistants/googleai";
 import { Assistant as OpenAIAssistant } from "./assistants/openai";
-import { Assistant as DeepSeekAssistant } from "./assistants/deepseekai";
+import { Assistant as DeepSeekAssistant } from "./assistants/googleai";
 import { Chat } from "./components/Chat/Chat";
 import { Controls } from "./components/Controls/Controls";
 import { Loader } from "./components/Loader/Loader";
