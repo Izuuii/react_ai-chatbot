@@ -82,44 +82,55 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen items-center gap-4 px-2 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 bg-gray-50 dark:bg-gray-900 dark:text-white">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-white">
       {isLoading && <Loader />}
-      <header className="flex flex-row items-center text-center py-3 w-full justify-between">
-        <div className="flex flex-row gap-2 items-center">
-          <img className="w-16 h-16" src="/chat-bot.png" alt="Chatbot Logo" />
-          <h2 className="m-0 text-xl font-semibold">AI Chatbot</h2>
-        </div>
-        <div className="flex flex-row gap-4 items-center">
-          <select
-            className="rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600"
-            value={selectedAssistant}
-            onChange={e => setSelectedAssistant(e.target.value)}
-            disabled={isLoading || isStreaming}
-          >
-            {ASSISTANTS.map(a => (
-              <option key={a.key} value={a.key}>{a.name}</option>
-            ))}
-          </select>
-          <Switch
-            checked={isDarkMode}
-            onChange={setIsDarkMode}
-            className={`relative inline-flex h-[27px] w-[45px] items-center rounded-full transition duration-300 
-              ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
-          >
-            <span
-              className={`inline-block h-[22px] w-[22px] transform rounded-full transition
-                ${isDarkMode ? "translate-x-5 bg-white" : "translate-x-1 bg-white"}`}
-            />
-          </Switch>
-        </div>
-      </header>
 
-      <div className="ChatContainer flex-grow w-full bg-white overflow-y-auto p-3 dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-700 transition-colors duration-300">
-        <Chat messages={messages} />
-      </div>
+      {/* Inner padded wrapper (x-axis padding) */}
+      <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 md:px-12 lg:px-24 py-4 sm:py-8 flex flex-col gap-4 flex-grow">
 
-      <div className="w-full">
-        <Controls isDisabled={isLoading || isStreaming} onSend={handleContentSend} />
+        {/* Header */}
+        <header className="flex flex-row items-center text-center py-3 w-full justify-between">
+          <div className="flex flex-row gap-2 items-center">
+            <img className="w-16 h-16" src="/chat-bot.png" alt="Chatbot Logo" />
+            <h2 className="m-0 text-xl font-semibold">AI Chatbot</h2>
+          </div>
+          <div className="flex flex-row gap-4 items-center">
+            {/* Assistant Dropdown */}
+            <select
+              className="rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600"
+              value={selectedAssistant}
+              onChange={e => setSelectedAssistant(e.target.value)}
+              disabled={isLoading || isStreaming}
+            >
+              {ASSISTANTS.map(a => (
+                <option key={a.key} value={a.key}>{a.name}</option>
+              ))}
+            </select>
+
+            {/* Dark Mode Switch */}
+            <Switch
+              checked={isDarkMode}
+              onChange={setIsDarkMode}
+              className={`relative inline-flex h-[27px] w-[45px] items-center rounded-full transition duration-300 
+                ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
+            >
+              <span
+                className={`inline-block h-[22px] w-[22px] transform rounded-full transition
+                  ${isDarkMode ? "translate-x-5 bg-white" : "translate-x-1 bg-white"}`}
+              />
+            </Switch>
+          </div>
+        </header>
+
+        {/* Chat Area */}
+        <div className="ChatContainer flex-grow w-full bg-white overflow-y-auto p-3 dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-700 transition-colors duration-300">
+          <Chat messages={messages} />
+        </div>
+
+        {/* Input Controls */}
+        <div className="w-full">
+          <Controls isDisabled={isLoading || isStreaming} onSend={handleContentSend} />
+        </div>
       </div>
     </div>
   );
